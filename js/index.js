@@ -33,6 +33,9 @@ function handleFiles(files) {
     if (files.length !== 2) {
         alert("There must be two files (.csv and .met)");
     } else {
+        let container = document.getElementById("outputs");
+        // Clear old data
+        container.innerHTML = "";
         let met = (files[0].name.endsWith(".met") ? files[0] : files[1]);
         let csv = (files[0].name.endsWith(".csv") ? files[0] : files[1]);
         let metReader = new FileReader();
@@ -44,9 +47,6 @@ function handleFiles(files) {
             csvReader.onload = function (event) {
                 let csvData = event.target.result;
                 processData(metData, csvData, (oneSampleData, fileName, headers)=>{
-                    let container = document.getElementById("outputs");
-                    // Clear old data
-                    container.innerHTML = "";
                     // Check if we filter the result
                     if (!document.getElementById('prepurge').checked) {
                         oneSampleData = oneSampleData.filter(d=>d.Flag !== '1');
