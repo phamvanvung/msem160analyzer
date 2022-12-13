@@ -45,6 +45,8 @@ function handleFiles(files) {
                 let csvData = event.target.result;
                 processData(metData, csvData, (oneSampleData, fileName, headers)=>{
                     let container = document.getElementById("outputs");
+                    // Clear old data
+                    container.innerHTML = "";
                     // Check if we filter the result
                     if (!document.getElementById('prepurge').checked) {
                         oneSampleData = oneSampleData.filter(d=>d.Flag !== '1');
