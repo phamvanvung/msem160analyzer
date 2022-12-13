@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<!--adopted from: https://www.smashingmagazine.com/2018/01/drag-drop-file-uploader-vanilla-js/-->
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url("css/main.css");
+    </style>
+    <title>Sensigent MSEM 160 File Converter</title>
+    <script src="lib/d3.v7.min.js"></script>
+    <script src="js/jsontocsv.js"></script>
+    <script src="js/processdata.js"></script>
+</head>
+
+<body>
+    <div id="drop-area">
+        <form class="my-form">
+            <p>Select output types to include:<br />
+                <input type="checkbox" id="prepurge" name="prepurge" value="prepurge" checked>
+                <label for="prepurge"> Pre-purge</label><br>
+                <input type="checkbox" id="sample" name="sample" value="sample" checked>
+                <label for="sample"> Sample</label><br>
+                <input type="checkbox" id="postpurge" name="postpurge" value="postpurge" checked>
+                <label for="postpurge"> Post-purge</label><br>
+            </p>
+            <p>
+                Select <input type="checkbox" id="downloadautomatically" name="downloadautomatically" value="downloadautomatically">
+                <label for="downloadautomatically"> this option</label> to download automatically (please allows Chrome to download multiple files when prompted, or disable this and click links to download files manually)
+            </p>
+            <p>Then, upload the .csv and the .met files with the file dialog or by dragging and dropping them onto the
+                dashed
+                region</p>
+            <p><input type="file" id="fileElem" multiple accept=".csv, .met" onchange="handleFiles(this.files)">
+                <label class="button" for="fileElem">Select .met and .csv files</label>
+            </p>
+            <p id="outputs">
+                Outputs (click to download):<br />
+            </p>
+        </form>
+    </div>
+    <script src="js/index.js"></script>
+</body>
+
+</html>
