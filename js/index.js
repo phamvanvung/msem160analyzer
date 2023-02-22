@@ -46,20 +46,12 @@ function handleFiles(files) {
             let csvReader = new FileReader();
             csvReader.onload = function (event) {
                 let csvData = event.target.result;
-                processData(metData, csvData, (oneSampleData, fileName, headers)=>{
-                    // Check if we filter the result
-                    if (!document.getElementById('prepurge').checked) {
-                        oneSampleData = oneSampleData.filter(d=>d.Flag !== '1');
-                    } 
-                    if (!document.getElementById('sample').checked) {
-                        oneSampleData = oneSampleData.filter(d=>d.Flag !== '3');
-                    } 
-                    if (!document.getElementById('postpurge').checked) {
-                        oneSampleData = oneSampleData.filter(d=>d.Flag !== '6');
-                    } 
-                    downloadautomatically=document.getElementById("downloadautomatically").checked;
-
-                    exportCSVFile(oneSampleData, fileName, container, headers, downloadautomatically);
+                let options = {
+                    'prepurge': document.getElementById('prepurge').checked,
+                    'sample': document.getElementById('sample').checked,
+                    'postpurge': document.getElementById('postpurge').checked,
+                }
+                processData(metData, csvData, options, (oneSampleData, fileName, headers)=>{                    
                 });
             };
             csvReader.readAsText(csv);
