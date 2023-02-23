@@ -25,7 +25,10 @@
 
 <body>
     <div class="sidenav" id="mySideNav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <div class="closebtn">
+            <a href="javascript:void(0)"  onclick="closeNav()">&times;</a>
+        </div>
+        
         <div id="drop-area">
             <form class="my-form">
                 <p>Select output types to include:<br />
@@ -50,7 +53,9 @@
                     <label class="button" for="fileElem">Select or drag and drop .met and .csv files</label>
                 </p>
                 <p id="outputs">
-                    Outputs (click to download):<br />
+                    Want some example data? (Click to download):<br />
+                    <a href="data/Breath_Test-TR-012723142856.csv">CSV file</a><br/>
+                    <a href="data/Breath_Test-TR-012723142856.met">MET file</a><br/>
                 </p>
             </form>
         </div>
