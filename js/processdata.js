@@ -60,26 +60,34 @@ function processData(metData, csvData, options, callback) {
     data = filterByStage(data, options)
     // Get max time counter
     const maxTimeCount = getMaxTimeCount(data);
-    console.log(maxTimeCount);
     // Add time counter
     data = addTimeCounter(data, maxTimeCount);
     // Convert Flag and Sensors into number
     convertFlagAndSensorsToNumbers(data);
-    debugger
-    console.log(data);
+    // Clean data
+    if(options.cleanData){
+        cleanData(data);
+    }
+    // Normalize data
+    if(options.normalize){
+        normalize(data);
+    }
+    // Convert to ParCoord data
+    data = toParCooordData(data);
+
     callback(data);
     //callback with data
 }
 function filterByStage(data, options){
     result = data;
     if(!options.prepurge){
-        result = result.filter(d=>d.Flag!==1);
+        result = result.filter(d=>d.Flag!=="1");
     }
     if(!options.sample){
-        result = result.filter(d=>d.Flag!==2);
+        result = result.filter(d=>d.Flag!=="3");
     }
     if(!options.postpurge){
-        result = result.filter(d=>d.Flag!==3);
+        result = result.filter(d=>d.Flag!=="6");
     }
     return result;
 }
@@ -169,4 +177,119 @@ function convertFlagAndSensorsToNumbers(data){
         })
     });
 }
-// For each class, for each sensor get the diff population
+function getInfo(data){
+    let classes = new Set(data.map(d=>d.Class));
+    let samples = new Set(data.map(d=>d.Sample));
+    let flags = new Set(data.map(d=>d.Flag));
+    return {classes, samples, flags}
+}
+function getSensors(){
+    let sensors = [];
+    for(i=1; i<=32; i++){
+        sensors.push('S' + i);
+    }
+    return sensors;
+}
+// Convert to parcoord data
+function toParCooordData(data){
+    let info = getInfo(data);
+    let classesIterator = info.classes;
+    let samplesIterator = info.samples;
+    let sensorsIterator = getSensors();
+    results = [];
+    
+    // For each class
+    classesIterator.forEach(cls=>{
+        // For each Sample
+        samplesIterator.forEach(sample=>{
+            // Rows for this sample
+            let rows = data.filter(d=>d.Class == cls && d.Sample === sample); //Slice here for the time step
+            
+            // For each sensor
+            sensorsIterator.forEach(sensor=>{
+                
+                // There should be an item over time
+                let item = {
+                    'Class': cls,
+                    'Sample': sample,
+                    'Sensor': sensor
+                }
+                
+                rows.forEach(r=>{
+                    timeStamp = r.Flag + "-" + r.timeStep;
+                    item[timeStamp] = r[sensor];
+                });
+                // Add this item to the result
+                results.push(item);
+            });
+        });
+        
+    });
+    return results;
+}
+// Clean the data
+function cleanData(data){
+    // classes
+    const groups = d3.group(data, d=>d.Class, d=>d.Sample, d=>d.Flag);
+    // loop through class
+    let classIt = groups.keys()
+    let nextClass = classIt.next();
+    while(!nextClass.done){
+        // loop through sample
+        let sampleGroups = groups.get(nextClass.value);
+        let sampleIt = sampleGroups.keys();
+        let nextSample = sampleIt.next();
+        while(!nextSample.done){
+            let flagGroups = sampleGroups.get(nextSample.value);
+            let flagIt = flagGroups.keys();
+            let nextFlag = flagIt.next();
+            while(!nextFlag.done){
+                let flag = nextFlag.value;
+                let flagData = flagGroups.get(flag);
+                let sensors = getSensors();
+                sensors.forEach(sensor=>{
+                    let diffs = [];
+                    let sensorData = flagData.map(d=>d[sensor]);
+                    for(i = 0; i<sensorData.length-1; i++){
+                        diffs.push(sensorData[i+1] - sensorData[i]);
+                    }
+                    // Calculate statistics
+                    let q1 = ss.quantile(diffs, 0.25);
+                    let q3 = ss.quantile(diffs, 0.75);
+                    let iqr = q3 - q1;
+                    let lowThreshold = q1 - 5*iqr;
+                    let highThreshold = q3 + 5*iqr;
+                    // Check for outlying changes
+                    for(i = 1; i < sensorData.length; i++){
+                        if(diffs[i-1] < lowThreshold || diffs[i-1] > highThreshold){
+                            //Item i is having an issue (take its prev value)
+                            flagData[i][sensor] = flagData[i-1][sensor];
+                        }
+                    }
+
+                });
+                // Next flag
+                nextFlag = flagIt.next();
+            }
+            // Next next sample
+            nextSample = sampleIt.next();
+        }
+        // Next class
+        nextClass = classIt.next();
+    }
+    return result;
+}
+// Normalize the data
+function normalize(data){
+    // Get the max and min of each sensor
+    let sensors = getSensors();
+    sensors.forEach(sensor=>{
+        let scaler = d3.scaleLinear().domain(d3.extent(data.map(d=>d[sensor]))).range([0, 100]);
+        // Update
+        data.forEach(row=>{
+            row[sensor] = scaler(row[sensor]);
+        });
+    });
+    
+
+}

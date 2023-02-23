@@ -12,9 +12,15 @@
     </style>
     <title>Sensigent MSEM 160 File Converter</title>
     <script src="lib/d3.v7.min.js"></script>
+    <script src="lib/simple-statistics.min.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/jsontocsv.js"></script>
     <script src="js/processdata.js"></script>
+    <!--Parallel Coordinates-->
+    <script src="lib/parcoords/parcoords.js"></script>
+    <style>
+        @import "lib/parcoords/parcoords.css";
+    </style>
 </head>
 
 <body>
@@ -23,18 +29,18 @@
         <div id="drop-area">
             <form class="my-form">
                 <p>Select output types to include:<br />
-                    <input type="checkbox" id="prepurge" name="prepurge" value="prepurge" checked>
+                    <input type="checkbox" id="prepurge" name="prepurge" value="prepurge">
                     <label for="prepurge"> Pre-purge</label><br>
                     <input type="checkbox" id="sample" name="sample" value="sample" checked>
                     <label for="sample"> Sample</label><br>
-                    <input type="checkbox" id="postpurge" name="postpurge" value="postpurge" checked>
+                    <input type="checkbox" id="postpurge" name="postpurge" value="postpurge">
                     <label for="postpurge"> Post-purge</label><br>
                 </p>
                 <p>Select post-processing options:<br />
+                    <input type="checkbox" id="cleanData" name="cleanData" value="cleanData" checked>
+                    <label for="cleanData"> Clean data</label><br>
                     <input type="checkbox" id="normalize" name="normalize" value="normalize" checked>
                     <label for="normalize"> Normalize</label><br>
-                    <input type="checkbox" id="removeOutliers" name="removeOutliers" value="removeOutliers" checked>
-                    <label for="sample"> Remove outliers</label><br>
                 </p>
                 <p>Then, upload the .csv and the .met files with the file dialog or by dragging and dropping them onto
                     the
@@ -59,7 +65,7 @@
     </div>
     <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
     <div id="main">
-        Main content
+        <div id="parcoordsChart" class="parcoords" style="overflow: visible;"></div>
     </div>
 
     <script src="js/index.js"></script>
