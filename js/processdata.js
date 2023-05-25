@@ -1,8 +1,8 @@
 function processData(metData, csvData, options, callback) {
-    metData = metData.split('\r\n');
+    metData = metData.split('\n');
     metData = metData.slice(5);
 
-    let parts = metData[0].split('\n');
+    let parts = metData.filter(x=>x.indexOf("Class ") == 0);
 
     let classNames = {}
     parts.forEach(cls => {
@@ -12,7 +12,7 @@ function processData(metData, csvData, options, callback) {
         }
     });
     // process csv data
-    csvData = csvData.split('\r\n');
+    csvData = csvData.split('\n');
     csvData = csvData.slice(2); //Read from the third rows onward (first two rows are not data or header)
     let headers = {}
     let headerLine = csvData[0].split(",");
@@ -27,7 +27,7 @@ function processData(metData, csvData, options, callback) {
         return header;
     })
     csvData[0] = headerLine.join(',');
-    csvData = csvData.join('\r\n'); // Join back
+    csvData = csvData.join('\n'); // Join back
     csvData = d3.csvParse(csvData);
     data = [];
     // For each classes
